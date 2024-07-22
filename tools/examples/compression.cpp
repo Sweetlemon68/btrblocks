@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
     // allocate some memory for the output; if this is passed as null,
     // the compressor will allocate the memory itself, estimating required space
     // passing too little memory here can lead to a crash/UB; memory bounds are not checked.
-    std::unique_ptr<uint8_t[]> output(new uint8_t[input.tuple_count * sizeof(double) * 2]);
+    std::unique_ptr<uint8_t[]> output(new uint8_t[input.tuple_count * sizeof(double) * 2 + 65536]);
 
     // compress the data; return value contains some statistics about the
     // overall compression, used schemes and individual columns
