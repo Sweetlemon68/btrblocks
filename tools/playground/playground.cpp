@@ -13,6 +13,10 @@
 // -------------------------------------------------------------------------------------
 #include "headers/codecfactory.h"
 #include "headers/deltautil.h"
+#include "headers/blockpacking.h"
+#include "headers/compositecodec.h"
+#include "headers/simdfastpfor.h"
+#include "headers/variablebyte.h"
 // -------------------------------------------------------------------------------------
 DEFINE_uint32(n, 10, "");
 DEFINE_uint32(s, 100, "");

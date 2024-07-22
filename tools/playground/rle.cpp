@@ -14,7 +14,8 @@ int main() {
    std::srand(std::time(nullptr));
    // -------------------------------------------------------------------------------------
    using namespace FastPForLib;
-   IntegerCODEC &codec = *CODECFactory::getFromName("simdfastpfor256");
+   CODECFactory factory;
+   IntegerCODEC &codec = *factory.getFromName("simdfastpfor256");
    size_t N = 1000 * 1000;
    std::vector<uint32_t> rle_input(N);
    for ( uint32_t i = 0; i < N; i++ ) {
