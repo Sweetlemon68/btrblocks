@@ -111,17 +111,24 @@ struct Vector<std::string_view> {
 
   uint64_t fileSize;
   Data* data;
+  bool is_from_mmap;
 
-  Vector() : data(nullptr) {}
-  explicit Vector(const char* pathname) { readBinary(pathname); }
+  Vector() : data(nullptr), is_from_mmap(false) {}
+  explicit Vector(std::vector<std::string_view> &vec);
+  explicit Vector(const char* pathname) : is_from_mmap(true) { readBinary(pathname); }
   Vector(const Vector&) = delete;
-  Vector(Vector&& o) noexcept : fileSize(o.fileSize), data(o.data) {
+  Vector(Vector&& o) noexcept : fileSize(o.fileSize), data(o.data), is_from_mmap(o.is_from_mmap) {
     o.fileSize = 0;
     o.data = nullptr;
   }
   ~Vector() {
     if (data) {
-      die_if(munmap(data, fileSize) == 0);
+      if (is_from_mmap) {
+        die_if(munmap(data, fileSize) == 0);
+      }
+      else {
+        delete[] data;
+      }
     }
   }
 
@@ -136,6 +143,7 @@ struct Vector<std::string_view> {
     die_if(fstat(fd, &sb) != -1);
     fileSize = static_cast<uint64_t>(sb.st_size);
     data = reinterpret_cast<Data*>(mmap(nullptr, fileSize, PROT_READ, MAP_PRIVATE, fd, 0));
+    is_from_mmap = true;
     die_if(data != MAP_FAILED);
     die_if(close(fd) == 0);
   }
