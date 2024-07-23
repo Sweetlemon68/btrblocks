@@ -54,7 +54,7 @@ Data* writeInMem(const std::vector<std::string_view>& v, uint64_t& memSize) {
     [](uint64_t acc, const std::string_view& s) { return acc + s.size() + 1; });
 
   const auto data = reinterpret_cast<Data*>(new char[memSize]);
-  die_if(data == nullptr);
+  die_if(data != nullptr);
   data->count = v.size();
   
   uint64_t cur_offset = initial_offset;
