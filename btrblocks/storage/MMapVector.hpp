@@ -114,7 +114,7 @@ struct Vector<std::string_view> {
   bool is_from_mmap;
 
   Vector() : data(nullptr), is_from_mmap(false) {}
-  explicit Vector(std::vector<std::string_view> &vec);
+  explicit Vector(const std::vector<std::string_view> &vec);
   explicit Vector(const char* pathname) : is_from_mmap(true) { readBinary(pathname); }
   Vector(const Vector&) = delete;
   Vector(Vector&& o) noexcept : fileSize(o.fileSize), data(o.data), is_from_mmap(o.is_from_mmap) {

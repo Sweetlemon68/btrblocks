@@ -71,7 +71,7 @@ Data* writeInMem(const std::vector<std::string_view>& v, uint64_t& memSize) {
   return data;
 }
 
-Vector<std::string_view>::Vector(std::vector<std::string_view> &vec) {
+Vector<std::string_view>::Vector(const std::vector<std::string_view> &vec) {
   uint64_t memSize;
   data = writeInMem(vec, memSize);
   fileSize = memSize;
