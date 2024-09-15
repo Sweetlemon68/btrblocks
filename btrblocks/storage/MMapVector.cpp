@@ -51,7 +51,7 @@ using Data = btrblocks::Vector<std::string_view>::Data;
 Data* writeInMem(const std::vector<std::string_view>& v, uint64_t& memSize) {
   const uint64_t initial_offset = sizeof(size_t) + sizeof(StringIndexSlot) * v.size();
   memSize = std::accumulate(v.begin(), v.end(), initial_offset,
-    [](uint64_t acc, const std::string_view& s) { return acc + s.size() + 1; });
+    [](uint64_t acc, const std::string_view& s) { return acc + s.size(); });
 
   const auto data = reinterpret_cast<Data*>(new char[memSize]);
   die_if(data != nullptr);
@@ -64,8 +64,8 @@ Data* writeInMem(const std::vector<std::string_view>& v, uint64_t& memSize) {
     data->slot[slot].size = s.size();
     data->slot[slot].offset = cur_offset;
     std::copy(s.begin(), s.end(), dst + cur_offset);
-    dst[cur_offset + s.size()] = '\0';
-    cur_offset += s.size() + 1;
+    // dst[cur_offset + s.size()] = '\0';
+    cur_offset += s.size();
     slot++;
   }
   return data;
