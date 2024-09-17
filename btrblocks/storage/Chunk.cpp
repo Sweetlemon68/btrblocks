@@ -32,7 +32,8 @@ bool Chunk::operator==(const btrblocks::Chunk& other) const {
   }
 
   for (u32 column_i = 0; column_i < relation.columns.size(); column_i++) {
-    if (!column_requires_copy[column_i] && sizes[column_i] != other.sizes[column_i]) {
+    if (!column_requires_copy[column_i] && sizes[column_i] != other.sizes[column_i] &&
+        relation.columns[column_i].type != ColumnType::STRING) {
       cerr << "== : sizes in column " << column_i << " are not identical: " << sizes[column_i]
            << " vs. " << other.sizes[column_i] << endl;
       return false;
