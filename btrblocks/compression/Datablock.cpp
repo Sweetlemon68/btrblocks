@@ -338,8 +338,11 @@ OutputBlockStats Datablock::compress(const Chunk& input_chunk, BytesArray& outpu
 }
 // -------------------------------------------------------------------------------------
 btrblocks::Chunk Datablock::decompress(const BytesArray& input_db) {
+  return this->decompress(input_db.get());
+}
+btrblocks::Chunk Datablock::decompress(const BytesArray::pointer input_block) {
   // TODO this function shoiuld not rely on the presence of the relation
-  auto db_meta = reinterpret_cast<DatablockMeta*>(input_db.get());
+  auto db_meta = reinterpret_cast<DatablockMeta*>(input_block);
   const u32 tuple_count = db_meta->count;
   // -------------------------------------------------------------------------------------
   auto columns =
@@ -356,7 +359,7 @@ btrblocks::Chunk Datablock::decompress(const BytesArray& input_db) {
     // -------------------------------------------------------------------------------------
     // Decompress bitmap if necessary
     auto bitmap =
-        BitmapWrapper(reinterpret_cast<const u8*>(input_db.get() + column_meta.nullmap_offset),
+        BitmapWrapper(reinterpret_cast<const u8*>(input_block + column_meta.nullmap_offset),
                       column_meta.bitmap_type, tuple_count);
     bitmap.writeBITMAP(bitmaps[column_i].get());
     // -------------------------------------------------------------------------------------
@@ -369,7 +372,7 @@ btrblocks::Chunk Datablock::decompress(const BytesArray& input_db) {
         auto destination_array = reinterpret_cast<INTEGER*>(columns[column_i].get());
         auto& scheme = IntegerSchemePicker::MyTypeWrapper::getScheme(column_meta.compression_type);
         // -------------------------------------------------------------------------------------
-        scheme.decompress(destination_array, &bitmap, input_db.get() + column_meta.offset,
+        scheme.decompress(destination_array, &bitmap, input_block + column_meta.offset,
                           tuple_count, 0);
         column_requires_copy[column_i] = false;
         break;
@@ -384,7 +387,7 @@ btrblocks::Chunk Datablock::decompress(const BytesArray& input_db) {
             static_cast<DoubleSchemeType>(column_meta.compression_type);
         auto& scheme = SchemePool::available_schemes->double_schemes[used_compression_scheme];
         // -------------------------------------------------------------------------------------
-        scheme->decompress(column_dest_double_array, &bitmap, input_db.get() + column_meta.offset,
+        scheme->decompress(column_dest_double_array, &bitmap, input_block + column_meta.offset,
                            tuple_count, 0);
         column_requires_copy[column_i] = false;
         break;
@@ -395,7 +398,7 @@ btrblocks::Chunk Datablock::decompress(const BytesArray& input_db) {
             static_cast<StringSchemeType>(column_meta.compression_type);
         auto& scheme = SchemePool::available_schemes->string_schemes[used_compression_scheme];
         // -------------------------------------------------------------------------------------
-        sizes[column_i] = scheme->getDecompressedSizeNoCopy(input_db.get() + column_meta.offset,
+        sizes[column_i] = scheme->getDecompressedSizeNoCopy(input_block + column_meta.offset,
                                                             tuple_count, &bitmap);
         // TODO The 4096 is temporary until I figure out why FSST is returning
         // bigger numbers
@@ -403,7 +406,7 @@ btrblocks::Chunk Datablock::decompress(const BytesArray& input_db) {
                                            4096);  // +8 because of 8 fsst decompression
         // -------------------------------------------------------------------------------------
         column_requires_copy[column_i] = scheme->decompressNoCopy(
-            columns[column_i].get(), &bitmap, input_db.get() + column_meta.offset, tuple_count, 0);
+            columns[column_i].get(), &bitmap, input_block + column_meta.offset, tuple_count, 0);
         break;
       }
       default:

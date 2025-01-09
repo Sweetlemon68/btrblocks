@@ -59,6 +59,7 @@ class Datablock : public RelationCompressor {
   explicit Datablock(const Relation& relation);
   OutputBlockStats compress(const Chunk& input_chunk, BytesArray& output_block) override;
   Chunk decompress(const BytesArray& input_block) override;
+  Chunk decompress(const BytesArray::pointer input_block);
   virtual void getCompressedColumn(const BytesArray& input_db, u32 col_i, u8*& ptr, u32& size);
 
   static bool decompress(const u8* data_in, BitmapWrapper** bitmap_out, u8* data_out);
